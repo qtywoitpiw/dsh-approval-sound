@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Approval chime",
+    "description": "Plays a chime on this computer when a permission approval is waiting for you, with an on/off switch in Settings."
+  }
+}

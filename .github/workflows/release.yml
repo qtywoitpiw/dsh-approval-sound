@@ -1,0 +1,44 @@
+name: Release
+
+# Push a version tag to publish a downloadable package:
+#   git tag -a v1.0.0 -m "v1.0.0" && git push origin v1.0.0
+# The workflow packs dsh-approval-sound-<version>.tgz and attaches it to the
+# GitHub Release, so users can download it and hand it to DSH's "Add plugin".
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run self-tests
+        run: npm test
+
+      - name: Pack the plugin
+        run: npm pack
+
+      - name: Create GitHub Release with the package attached
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          notes=".github/release-notes/${version}.md"
+          args=(--title "dsh-approval-sound ${GITHUB_REF_NAME}" --latest)
+          if [ -f "$notes" ]; then
+            args+=(--notes-file "$notes")
+          else
+            args+=(--generate-notes)
+          fi
+          gh release create "${GITHUB_REF_NAME}" ./*.tgz "${args[@]}"
+          gh release view "${GITHUB_REF_NAME}" --json url,assets --jq '"release: \(.url)  assets: \([.assets[].name] | join(", "))"'

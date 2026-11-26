@@ -1,0 +1,6 @@
+# dsh-approval-sound：需要你批准权限时响一声提示音。
+# 只插入一个宿主行（状态与 SSE 路由）；浏览器半边由 package.json 的
+# `exports["./client"]` 提供（设置 → 通用 里的开关行）。
+- insert:
+    - id: approval-sound
+      name: 'dsh-approval-sound'
